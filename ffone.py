@@ -95,16 +95,34 @@ modelo_feedforward.save('modelo_medico_feedforward.keras')
 
 #__________________________________Graficos (Conclusiones)__________________________________#
 
+fig, axs = plt.subplots(1, 2, figsize=(10, 8))
+
 mse_entrenamiento = historial.history['mean_squared_error']
 mse_validacion = historial.history['val_mean_squared_error']
 epochs = range(1, len(mse_entrenamiento) + 1)
-plt.figure(figsize=(10, 6))
-plt.plot(epochs, mse_entrenamiento, 'b-', label='MSE Entrenamiento')
-plt.plot(epochs, mse_validacion, 'r--', label='MSE Validación')
-plt.xlabel('Epochs')
-plt.ylabel('Mean Squared Error')
-plt.title('MSE Entrenamiento vs Validación')
-plt.legend()
-plt.grid()
-plt.savefig('mse_entrenamiento_validacion.png')
+
+axs[0].plot(epochs, mse_entrenamiento, 'b-', label='MSE Entrenamiento')
+axs[0].plot(epochs, mse_validacion, 'r--', label='MSE Validación')
+axs[0].set_xlabel('Epochs')
+axs[0].set_ylabel('Mean Squared Error')
+axs[0].set_title('MSE Entrenamiento vs Validación')
+axs[0].legend()
+axs[0].grid()
+
+x_test = x[int(n_samples*0.8):]
+y_test = y[int(n_samples*0.8):]
+predicciones = modelo_feedforward.predict(x_test)
+axs[1].scatter(y_test, predicciones, alpha=0.6, color='teal')
+axs[1].set_xlabel('Costo medico anual real')
+axs[1].set_ylabel('Costo medico anual predicho')
+axs[1].set_title('Costo Medico Anual Actual vs Predicho')
+min_val = min(y_test.min(), predicciones.min())
+max_val = max(y_test.max(), predicciones.max())
+axs[1].plot([min_val, max_val], [min_val, max_val], color='red', linestyle='-', linewidth=2, label ='Recta de Aproximacion')
+axs[1].set_xlim(0,65000)
+axs[1].legend()
+axs[1].grid()
+
+plt.savefig('mse_entrenamiento_validacion_prediccion.png')
+plt.tight_layout()
 plt.show()
